@@ -10,22 +10,53 @@ body
   font-size: 18px
   height: 100%
   margin: 0
+  user-select: none
+
+.center
+  bottom: 0
+  position: absolute
+  top: 0
+  left: 0
+  right: 0
+  margin: auto
+
+.main
+  height: 576px
+  width: 1024px
 
 .lanes
+  height: 400px
+
   .lane
     border: 2px solid green
-    border-radius: 12px
+    border-left: 0
+    display: inline-block
+    height: 100%
+    position: relative
+    width: 20%
+
+  &:first-child
+    border-left: 2px solid green
 
 .cards
-  position: absolute
-  bottom: 0
+  top: initial
+  width: 700px
 
   .card
     border: 1px solid black
     border-radius: 4px
 
     display: inline-block
-    font-size: 42px
     height: 140px
-    text-align: center
+    position: relative
     width: 100px
+
+.number
+  bottom: 0
+  font-size: 100px
+  margin: auto
+  position: absolute
+  top: 0
+  text-align: center
+  width: 100%
+  height: 100px

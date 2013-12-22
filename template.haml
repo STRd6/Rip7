@@ -1,7 +1,12 @@
-.lanes
-  - each @lanes, (lane) ->
-    .lane= lane
-
-.cards
-  - each @cards, (card) ->
-    .card= card
+.main.center
+  .lanes
+    - each @lanes, (lane) ->
+      .lane
+        .number= lane
+  
+  .cards.center
+    - each @cards, (card) ->
+      .card
+        .number= card
+        - on "click", ->
+          - console.log card
