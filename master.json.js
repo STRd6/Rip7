@@ -27,13 +27,13 @@ window["STRd6/Rip7:master"]({
     "template.haml": {
       "path": "template.haml",
       "mode": "100644",
-      "content": ".lanes\n  - each @lanes, (lane) ->\n    .lane= lane\n\n.cards\n  - each @cards, (card) ->\n    .card= card\n",
+      "content": ".main.center\n  .lanes\n    - each @lanes, (lane) ->\n      .lane\n        .number= lane\n  \n  .cards.center\n    - each @cards, (card) ->\n      .card\n        .number= card\n        - on \"click\", ->\n          - console.log card\n",
       "type": "blob"
     },
     "style.styl": {
       "path": "style.styl",
       "mode": "100644",
-      "content": "*\n  box-sizing: border-box\n\nhtml\n  height: 100%\n\nbody\n  font-family: \"HelveticaNeue-Light\", \"Helvetica Neue Light\", \"Helvetica Neue\", Helvetica, Arial, \"Lucida Grande\", sans-serif\n  font-weight: 300\n  font-size: 18px\n  height: 100%\n  margin: 0\n\n.lanes\n  .lane\n    border: 2px solid green\n    border-radius: 12px\n\n.cards\n  position: absolute\n  bottom: 0\n\n  .card\n    border: 1px solid black\n    border-radius: 4px\n\n    display: inline-block\n    font-size: 42px\n    height: 140px\n    text-align: center\n    width: 100px\n",
+      "content": "*\n  box-sizing: border-box\n\nhtml\n  height: 100%\n\nbody\n  font-family: \"HelveticaNeue-Light\", \"Helvetica Neue Light\", \"Helvetica Neue\", Helvetica, Arial, \"Lucida Grande\", sans-serif\n  font-weight: 300\n  font-size: 18px\n  height: 100%\n  margin: 0\n  user-select: none\n\n.center\n  bottom: 0\n  position: absolute\n  top: 0\n  left: 0\n  right: 0\n  margin: auto\n\n.main\n  height: 576px\n  width: 1024px\n\n.lanes\n  height: 400px\n\n  .lane\n    border: 2px solid green\n    border-left: 0\n    display: inline-block\n    height: 100%\n    position: relative\n    width: 20%\n\n  &:first-child\n    border-left: 2px solid green\n\n.cards\n  top: initial\n  width: 700px\n\n  .card\n    border: 1px solid black\n    border-radius: 4px\n\n    display: inline-block\n    height: 140px\n    position: relative\n    width: 100px\n\n.number\n  bottom: 0\n  font-size: 100px\n  margin: auto\n  position: absolute\n  top: 0\n  text-align: center\n  width: 100%\n  height: 100px\n",
       "type": "blob"
     },
     "pixie.cson": {
@@ -57,12 +57,12 @@ window["STRd6/Rip7:master"]({
     },
     "template": {
       "path": "template",
-      "content": "module.exports = Function(\"return \" + HAMLjr.compile(\".lanes\\n  - each @lanes, (lane) ->\\n    .lane= lane\\n\\n.cards\\n  - each @cards, (card) ->\\n    .card= card\\n\", {compiler: CoffeeScript}))()",
+      "content": "module.exports = Function(\"return \" + HAMLjr.compile(\".main.center\\n  .lanes\\n    - each @lanes, (lane) ->\\n      .lane\\n        .number= lane\\n  \\n  .cards.center\\n    - each @cards, (card) ->\\n      .card\\n        .number= card\\n        - on \\\"click\\\", ->\\n          - console.log card\\n\", {compiler: CoffeeScript}))()",
       "type": "blob"
     },
     "style": {
       "path": "style",
-      "content": "module.exports = \"* {\\n  -ms-box-sizing: border-box;\\n  -moz-box-sizing: border-box;\\n  -webkit-box-sizing: border-box;\\n  box-sizing: border-box;\\n}\\n\\nhtml {\\n  height: 100%;\\n}\\n\\nbody {\\n  font-family: \\\"HelveticaNeue-Light\\\", \\\"Helvetica Neue Light\\\", \\\"Helvetica Neue\\\", Helvetica, Arial, \\\"Lucida Grande\\\", sans-serif;\\n  font-weight: 300;\\n  font-size: 18px;\\n  height: 100%;\\n  margin: 0;\\n}\\n\\n.lanes .lane {\\n  border: 2px solid green;\\n  border-radius: 12px;\\n}\\n\\n.cards {\\n  position: absolute;\\n  bottom: 0;\\n}\\n\\n.cards .card {\\n  border: 1px solid black;\\n  border-radius: 4px;\\n  display: inline-block;\\n  font-size: 42px;\\n  height: 140px;\\n  text-align: center;\\n  width: 100px;\\n}\";",
+      "content": "module.exports = \"* {\\n  -ms-box-sizing: border-box;\\n  -moz-box-sizing: border-box;\\n  -webkit-box-sizing: border-box;\\n  box-sizing: border-box;\\n}\\n\\nhtml {\\n  height: 100%;\\n}\\n\\nbody {\\n  font-family: \\\"HelveticaNeue-Light\\\", \\\"Helvetica Neue Light\\\", \\\"Helvetica Neue\\\", Helvetica, Arial, \\\"Lucida Grande\\\", sans-serif;\\n  font-weight: 300;\\n  font-size: 18px;\\n  height: 100%;\\n  margin: 0;\\n  -ms-user-select: none;\\n  -moz-user-select: none;\\n  -webkit-user-select: none;\\n  user-select: none;\\n}\\n\\n.center {\\n  bottom: 0;\\n  position: absolute;\\n  top: 0;\\n  left: 0;\\n  right: 0;\\n  margin: auto;\\n}\\n\\n.main {\\n  height: 576px;\\n  width: 1024px;\\n}\\n\\n.lanes {\\n  height: 400px;\\n}\\n\\n.lanes .lane {\\n  border: 2px solid green;\\n  border-left: 0;\\n  display: inline-block;\\n  height: 100%;\\n  position: relative;\\n  width: 20%;\\n}\\n\\n.lanes:first-child {\\n  border-left: 2px solid green;\\n}\\n\\n.cards {\\n  top: initial;\\n  width: 700px;\\n}\\n\\n.cards .card {\\n  border: 1px solid black;\\n  border-radius: 4px;\\n  display: inline-block;\\n  height: 140px;\\n  position: relative;\\n  width: 100px;\\n}\\n\\n.number {\\n  bottom: 0;\\n  font-size: 100px;\\n  margin: auto;\\n  position: absolute;\\n  top: 0;\\n  text-align: center;\\n  width: 100%;\\n  height: 100px;\\n}\";",
       "type": "blob"
     },
     "pixie": {
