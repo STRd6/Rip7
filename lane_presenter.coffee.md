@@ -1,12 +1,17 @@
 Lane Presenter
 ==============
 
-    module.exports = (lane, index, ui) ->
+    module.exports = (value, index, ui) ->
       click: ->
+        return unless -10 < value < 10
+
         ui.chooseLane(index)
 
       assigned: ->
-        ui.cards.get ui.chosenIndices()[index]
+        ui.cards.get(ui.chosenIndices()[index]) or "None"
 
       classes: ->
-      
+        [
+          "won" if value >= 10
+          "lost" if value <= -10
+        ].compact().join(" ")

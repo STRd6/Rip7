@@ -11,6 +11,9 @@ Rip7
     hand = Observable []
     aiHand = Observable []
     chosenIndices = Observable []
+    previousChoices = Observable []
+    previousAiChoices = Observable []
+    messages = Observable []
     handSize = 7
     
     cpuIndices = []
@@ -33,18 +36,38 @@ Rip7
       chosenIndices []
       cpuIndices = [0...handSize].shuffle().slice(0, 5)
 
+    notify = (message) ->
+      messages.push message + "\n"
+
     computeLaneExchange = () ->
+
       lanes lanes.map (value, index) ->
-        playerCard = chosenIndices.get(index)
-        cpuCard = cpuIndices[index]
-        if cpuCard is "0" or playerCard is "0"
+        # Resolved lanes don't budge
+        return value if value <= -10 or value >= 10
+
+        playerCard = hand.get chosenIndices.get(index)
+        cpuCard = aiHand.get cpuIndices[index]
+
+        if (cpuCard is "0") or (playerCard is "0")
+          notify "Joker stalls! #{playerCard} - #{cpuCard}"
+          
           value # Joker Rule
         else if playerCard is "A" and face(cpuCard) # Ace Rule
+          notify "Your 'A' aced opponents #{cpuCard}"
+
           value + 1
         else if cpuCard is "A" and face(playerCard)
+          notify "CPUs 'A' aced your #{playerCard}"
+          
           value - 1
         else
-          value + (cardRanks[playerCard] or parseInt(playerCard, 10)) - (cardRanks[cpuCard] or parseInt(cpuCard))
+          playerValue = (cardRanks[playerCard] or parseInt(playerCard, 10))
+          cpuValue = (cardRanks[cpuCard] or parseInt(cpuCard))
+          
+          delta = playerValue - cpuValue
+          notify "Your #{playerCard} vs CPUs #{cpuCard} resulted in a change of #{delta}"
+          
+          value + delta
 
     validateIndices = (indices) ->
       indices.select (n) ->
@@ -56,6 +79,7 @@ Rip7
     ui =
       cards: hand
       lanes: lanes
+      messages: messages
       activeIndex: Observable null
       chosenIndices: chosenIndices
       chooseLane: (laneIndex) ->

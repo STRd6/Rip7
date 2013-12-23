@@ -22,3 +22,9 @@
 
   %button.go Go!
     - on "click", @resolveTurn
+
+  %pre.messages
+    - each @messages, (message) ->
+      = message
+    - @messages.observe ->
+      - $(".messages").animate scrollTop: $('.messages')[0].scrollHeight, 1000

@@ -24,6 +24,16 @@ body
   height: 576px
   width: 1024px
 
+.messages
+  height: 100px
+  top: 0
+  position: absolute
+  color: white
+  background-color: rgba(0, 0, 0, 0.5)
+  width: 100%
+  margin: 0
+  overflow: auto
+
 .lanes
   height: 400px
 
@@ -40,6 +50,12 @@ body
       bottom: 0
       left: 0
       right: 0
+
+    &.won
+      background-color: blue
+
+    &.lost
+      background-color: red
 
   &:first-child
     border-left: 2px solid green
