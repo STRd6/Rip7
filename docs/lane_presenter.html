@@ -34,14 +34,20 @@
               </div>
               
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = (lane, index, ui) -&gt;
+            <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = (value, index, ui) -&gt;
   click: -&gt;
+    <span class="keyword">return</span> <span class="keyword">unless</span> -<span class="number">10</span> &lt; value &lt; <span class="number">10</span>
+
     ui.chooseLane(index)
 
   assigned: -&gt;
-    ui.cards.get ui.chosenIndices()[index]
+    ui.cards.get(ui.chosenIndices()[index]) <span class="keyword">or</span> <span class="string">"None"</span>
 
-  classes: -&gt;</code></pre>
+  classes: -&gt;
+    [
+      <span class="string">"won"</span> <span class="keyword">if</span> value &gt;= <span class="number">10</span>
+      <span class="string">"lost"</span> <span class="keyword">if</span> value &lt;= -<span class="number">10</span>
+    ].compact().join(<span class="string">" "</span>)</code></pre>
 </div>
         </li>
         
