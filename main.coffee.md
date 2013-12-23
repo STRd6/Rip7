@@ -33,14 +33,42 @@ Rip7
     startTurn = ->
       aiHand cpuDeck.draw(handSize)
       hand deck.draw(handSize)
+
+      if hand().length is 0
+        # Reshuffle
+        deck.shuffle()
+        cpuDeck.shuffle()
+        aiHand cpuDeck.draw(handSize)
+        hand deck.draw(handSize)
+
       chosenIndices []
-      cpuIndices = [0...handSize].shuffle().slice(0, 5)
+      cpuIndices = [0...aiHand().length].shuffle().slice(0, 5)
+
+    checkForWinner = ->
+      wonLaneCount = lanes.filter (value) ->
+        value >= 10
+      .length
+
+      lostLaneCount = lanes.filter (value) ->
+        value <= -10
+      .length
+
+      if wonLaneCount >= 3
+        alert "You Win!"
+      else if lostLaneCount >= 3
+        alert "You Lose!"
+      else
+        # No winners
 
     notify = (message) ->
       messages.push message + "\n"
 
-    computeLaneExchange = () ->
+    unresolvedLaneCount = ->
+      lanes.filter (value) ->
+        -10 < value < 10
+      .length
 
+    computeLaneExchange = () ->
       lanes lanes.map (value, index) ->
         # Resolved lanes don't budge
         return value if value <= -10 or value >= 10
@@ -72,7 +100,7 @@ Rip7
     validateIndices = (indices) ->
       indices.select (n) ->
         n?
-      .length is 5
+      .length is unresolvedLaneCount()
 
     startTurn()
 
@@ -99,6 +127,7 @@ Rip7
 
         if validateIndices(indices)
           computeLaneExchange()
+          checkForWinner()
           startTurn()
           console.log indices
         else
