@@ -1,12 +1,21 @@
+- CardPresenter = require "./card_presenter"
+- LanePresenter = require "./lane_presenter"
+
+- ui = this
+
 .main.center
   .lanes
-    - each @lanes, (lane) ->
-      .lane
+    - each @lanes, (lane, index) ->
+      - {assigned, click, classes} = LanePresenter(lane, index, ui)
+      .lane(class=classes)
         .number= lane
-  
+        .assigned= assigned
+        - on "click", click
+
   .cards.center
-    - each @cards, (card) ->
-      .card
+    - each @cards, (card, index) ->
+      - {classes, click} = CardPresenter(card, index, ui)
+
+      .card(class=classes)
         .number= card
-        - on "click", ->
-          - console.log card
+        - on "click", click
