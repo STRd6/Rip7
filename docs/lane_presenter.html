@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>main</title>
+  <title>lane_presenter</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
@@ -18,7 +18,7 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1 id="rip7">Rip7</h1>
+              <h1 id="lane-presenter">Lane Presenter</h1>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">
@@ -34,31 +34,14 @@
               </div>
               
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">require <span class="string">"./setup"</span>
+            <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = (lane, index, ui) -&gt;
+  click: -&gt;
+    ui.chooseLane(index)
 
-Deck = require <span class="string">"./deck"</span>
+  assigned: -&gt;
+    ui.cards.get ui.chosenIndices()[index]
 
-deck = Deck()
-hand = Observable deck.draw(<span class="number">7</span>)
-
-ui =
-  cards: hand
-  lanes: Observable [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>]
-  activeIndex: Observable <span class="literal">null</span>
-  chosenIndices: Observable []
-  chooseLane: (laneIndex) -&gt;
-    <span class="keyword">if</span> (cardIndex = ui.activeIndex())?
-
-      existing = ui.chosenIndices().copy()
-
-      <span class="keyword">if</span> (index = existing.indexOf(cardIndex)) &gt;= <span class="number">0</span>
-        existing[index] = <span class="literal">null</span>
-
-      existing[laneIndex] = cardIndex
-
-      ui.chosenIndices existing
-
-$(<span class="string">"body"</span>).append require(<span class="string">"./template"</span>)(ui)</code></pre>
+  classes: -&gt;</code></pre>
 </div>
         </li>
         

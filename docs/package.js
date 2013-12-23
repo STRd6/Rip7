@@ -24,19 +24,19 @@
     "main.coffee.md": {
       "path": "main.coffee.md",
       "mode": "100644",
-      "content": "Rip7\n====\n\n    require \"./setup\"\n\n    ui =\n      cards: Observable [1, 2, 3, 4, 5, 6, 7]\n      lanes: Observable [0, 0, 0, 0, 0]\n\n    $(\"body\").append require(\"./template\")(ui)\n",
+      "content": "Rip7\n====\n\n    require \"./setup\"\n    \n    Deck = require \"./deck\"\n\n    deck = Deck()\n    hand = Observable deck.draw(7)\n\n    ui =\n      cards: hand\n      lanes: Observable [0, 0, 0, 0, 0]\n      activeIndex: Observable null\n      chosenIndices: Observable []\n      chooseLane: (laneIndex) ->\n        if (cardIndex = ui.activeIndex())?\n          \n          existing = ui.chosenIndices().copy()\n          \n          if (index = existing.indexOf(cardIndex)) >= 0\n            existing[index] = null\n\n          existing[laneIndex] = cardIndex\n          \n          ui.chosenIndices existing\n\n    $(\"body\").append require(\"./template\")(ui)\n",
       "type": "blob"
     },
     "template.haml": {
       "path": "template.haml",
       "mode": "100644",
-      "content": ".main.center\n  .lanes\n    - each @lanes, (lane) ->\n      .lane\n        .number= lane\n  \n  .cards.center\n    - each @cards, (card) ->\n      .card\n        .number= card\n        - on \"click\", ->\n          - console.log card\n",
+      "content": "- CardPresenter = require \"./card_presenter\"\n- LanePresenter = require \"./lane_presenter\"\n\n- ui = this\n\n.main.center\n  .lanes\n    - each @lanes, (lane, index) ->\n      - {assigned, click, classes} = LanePresenter(lane, index, ui)\n      .lane(class=classes)\n        .number= lane\n        .assigned= assigned\n        - on \"click\", click\n\n  .cards.center\n    - each @cards, (card, index) ->\n      - {classes, click} = CardPresenter(card, index, ui)\n\n      .card(class=classes)\n        .number= card\n        - on \"click\", click\n",
       "type": "blob"
     },
     "style.styl": {
       "path": "style.styl",
       "mode": "100644",
-      "content": "*\n  box-sizing: border-box\n\nhtml\n  height: 100%\n\nbody\n  font-family: \"HelveticaNeue-Light\", \"Helvetica Neue Light\", \"Helvetica Neue\", Helvetica, Arial, \"Lucida Grande\", sans-serif\n  font-weight: 300\n  font-size: 18px\n  height: 100%\n  margin: 0\n  user-select: none\n\n.center\n  bottom: 0\n  position: absolute\n  top: 0\n  left: 0\n  right: 0\n  margin: auto\n\n.main\n  height: 576px\n  width: 1024px\n\n.lanes\n  height: 400px\n\n  .lane\n    border: 2px solid green\n    border-left: 0\n    display: inline-block\n    height: 100%\n    position: relative\n    width: 20%\n\n  &:first-child\n    border-left: 2px solid green\n\n.cards\n  top: initial\n  width: 700px\n\n  .card\n    border: 1px solid black\n    border-radius: 4px\n\n    display: inline-block\n    height: 140px\n    position: relative\n    width: 100px\n\n.number\n  bottom: 0\n  font-size: 100px\n  margin: auto\n  position: absolute\n  top: 0\n  text-align: center\n  width: 100%\n  height: 100px\n",
+      "content": "*\n  box-sizing: border-box\n\nhtml\n  height: 100%\n\nbody\n  font-family: \"HelveticaNeue-Light\", \"Helvetica Neue Light\", \"Helvetica Neue\", Helvetica, Arial, \"Lucida Grande\", sans-serif\n  font-weight: 300\n  font-size: 18px\n  height: 100%\n  margin: 0\n  user-select: none\n\n.center\n  bottom: 0\n  position: absolute\n  top: 0\n  left: 0\n  right: 0\n  margin: auto\n\n.main\n  height: 576px\n  width: 1024px\n\n.lanes\n  height: 400px\n\n  .lane\n    border: 2px solid green\n    border-left: 0\n    display: inline-block\n    height: 100%\n    position: relative\n    width: 20%\n\n    .assigned\n      position: absolute\n      bottom: 0\n      left: 0\n      right: 0\n\n  &:first-child\n    border-left: 2px solid green\n\n.cards\n  top: initial\n  width: 700px\n\n  .card\n    border: 1px solid black\n    border-radius: 4px\n\n    display: inline-block\n    height: 140px\n    position: relative\n    width: 100px\n\n    &.active\n      background-color: #A0F\n\n.number\n  bottom: 0\n  font-size: 100px\n  margin: auto\n  position: absolute\n  top: 0\n  text-align: center\n  width: 100%\n  height: 100px\n",
       "type": "blob"
     },
     "pixie.cson": {
@@ -50,22 +50,40 @@
       "mode": "100644",
       "content": "Setup\n=====\n\nSet up our runtime styles and expose some stuff for debugging.\n\n    # For debug purposes\n    global.PACKAGE = PACKAGE\n    global.require = require\n\n    require \"jquery-utils\"\n\n    runtime = require(\"runtime\")(PACKAGE)\n    runtime.boot()\n    runtime.applyStyleSheet(require('./style'))\n\n    # Updating Application Cache and prompting for new version\n    require \"appcache\"\n",
       "type": "blob"
+    },
+    "deck.coffee.md": {
+      "path": "deck.coffee.md",
+      "mode": "100644",
+      "content": "Deck\n====\n\n    module.exports = ->\n      cards = [2..9].concat([\"A\", \"K\", \"Q\", \"J\", \"T\"]).map (n) -> # Standard 52\n        [0...4].map ->\n          n.toString()\n      .flatten()\n      .concat [\"0\", \"0\"] # Jokers\n\n      index = 0\n\n      self = \n        draw: (n) ->\n          result = cards.slice(index, index + n)\n\n          index += n\n\n          return result\n\n        shuffle: ->\n          index = 0\n          cards = cards.shuffle()\n\n        cards: ->\n          cards\n\n      self.shuffle()\n\n      return self",
+      "type": "blob"
+    },
+    "card_presenter.coffee.md": {
+      "path": "card_presenter.coffee.md",
+      "mode": "100644",
+      "content": "Card Presenter\n==============\n\n    module.exports = (card, index, ui) ->\n      classes: ->\n        \"active\" if index is ui.activeIndex()\n      click: ->\n        ui.activeIndex(index)\n\n        console.log card\n",
+      "type": "blob"
+    },
+    "lane_presenter.coffee.md": {
+      "path": "lane_presenter.coffee.md",
+      "mode": "100644",
+      "content": "Lane Presenter\n==============\n\n    module.exports = (lane, index, ui) ->\n      click: ->\n        ui.chooseLane(index)\n\n      assigned: ->\n        ui.cards.get ui.chosenIndices()[index]\n\n      classes: ->\n      ",
+      "type": "blob"
     }
   },
   "distribution": {
     "main": {
       "path": "main",
-      "content": "(function() {\n  var ui;\n\n  require(\"./setup\");\n\n  ui = {\n    cards: Observable([1, 2, 3, 4, 5, 6, 7]),\n    lanes: Observable([0, 0, 0, 0, 0])\n  };\n\n  $(\"body\").append(require(\"./template\")(ui));\n\n}).call(this);\n\n//# sourceURL=main.coffee",
+      "content": "(function() {\n  var Deck, deck, hand, ui;\n\n  require(\"./setup\");\n\n  Deck = require(\"./deck\");\n\n  deck = Deck();\n\n  hand = Observable(deck.draw(7));\n\n  ui = {\n    cards: hand,\n    lanes: Observable([0, 0, 0, 0, 0]),\n    activeIndex: Observable(null),\n    chosenIndices: Observable([]),\n    chooseLane: function(laneIndex) {\n      var cardIndex, existing, index;\n      if ((cardIndex = ui.activeIndex()) != null) {\n        existing = ui.chosenIndices().copy();\n        if ((index = existing.indexOf(cardIndex)) >= 0) {\n          existing[index] = null;\n        }\n        existing[laneIndex] = cardIndex;\n        return ui.chosenIndices(existing);\n      }\n    }\n  };\n\n  $(\"body\").append(require(\"./template\")(ui));\n\n}).call(this);\n\n//# sourceURL=main.coffee",
       "type": "blob"
     },
     "template": {
       "path": "template",
-      "content": "module.exports = Function(\"return \" + HAMLjr.compile(\".main.center\\n  .lanes\\n    - each @lanes, (lane) ->\\n      .lane\\n        .number= lane\\n  \\n  .cards.center\\n    - each @cards, (card) ->\\n      .card\\n        .number= card\\n        - on \\\"click\\\", ->\\n          - console.log card\\n\", {compiler: CoffeeScript}))()",
+      "content": "module.exports = Function(\"return \" + HAMLjr.compile(\"- CardPresenter = require \\\"./card_presenter\\\"\\n- LanePresenter = require \\\"./lane_presenter\\\"\\n\\n- ui = this\\n\\n.main.center\\n  .lanes\\n    - each @lanes, (lane, index) ->\\n      - {assigned, click, classes} = LanePresenter(lane, index, ui)\\n      .lane(class=classes)\\n        .number= lane\\n        .assigned= assigned\\n        - on \\\"click\\\", click\\n\\n  .cards.center\\n    - each @cards, (card, index) ->\\n      - {classes, click} = CardPresenter(card, index, ui)\\n\\n      .card(class=classes)\\n        .number= card\\n        - on \\\"click\\\", click\\n\", {compiler: CoffeeScript}))()",
       "type": "blob"
     },
     "style": {
       "path": "style",
-      "content": "module.exports = \"* {\\n  -ms-box-sizing: border-box;\\n  -moz-box-sizing: border-box;\\n  -webkit-box-sizing: border-box;\\n  box-sizing: border-box;\\n}\\n\\nhtml {\\n  height: 100%;\\n}\\n\\nbody {\\n  font-family: \\\"HelveticaNeue-Light\\\", \\\"Helvetica Neue Light\\\", \\\"Helvetica Neue\\\", Helvetica, Arial, \\\"Lucida Grande\\\", sans-serif;\\n  font-weight: 300;\\n  font-size: 18px;\\n  height: 100%;\\n  margin: 0;\\n  -ms-user-select: none;\\n  -moz-user-select: none;\\n  -webkit-user-select: none;\\n  user-select: none;\\n}\\n\\n.center {\\n  bottom: 0;\\n  position: absolute;\\n  top: 0;\\n  left: 0;\\n  right: 0;\\n  margin: auto;\\n}\\n\\n.main {\\n  height: 576px;\\n  width: 1024px;\\n}\\n\\n.lanes {\\n  height: 400px;\\n}\\n\\n.lanes .lane {\\n  border: 2px solid green;\\n  border-left: 0;\\n  display: inline-block;\\n  height: 100%;\\n  position: relative;\\n  width: 20%;\\n}\\n\\n.lanes:first-child {\\n  border-left: 2px solid green;\\n}\\n\\n.cards {\\n  top: initial;\\n  width: 700px;\\n}\\n\\n.cards .card {\\n  border: 1px solid black;\\n  border-radius: 4px;\\n  display: inline-block;\\n  height: 140px;\\n  position: relative;\\n  width: 100px;\\n}\\n\\n.number {\\n  bottom: 0;\\n  font-size: 100px;\\n  margin: auto;\\n  position: absolute;\\n  top: 0;\\n  text-align: center;\\n  width: 100%;\\n  height: 100px;\\n}\";",
+      "content": "module.exports = \"* {\\n  -ms-box-sizing: border-box;\\n  -moz-box-sizing: border-box;\\n  -webkit-box-sizing: border-box;\\n  box-sizing: border-box;\\n}\\n\\nhtml {\\n  height: 100%;\\n}\\n\\nbody {\\n  font-family: \\\"HelveticaNeue-Light\\\", \\\"Helvetica Neue Light\\\", \\\"Helvetica Neue\\\", Helvetica, Arial, \\\"Lucida Grande\\\", sans-serif;\\n  font-weight: 300;\\n  font-size: 18px;\\n  height: 100%;\\n  margin: 0;\\n  -ms-user-select: none;\\n  -moz-user-select: none;\\n  -webkit-user-select: none;\\n  user-select: none;\\n}\\n\\n.center {\\n  bottom: 0;\\n  position: absolute;\\n  top: 0;\\n  left: 0;\\n  right: 0;\\n  margin: auto;\\n}\\n\\n.main {\\n  height: 576px;\\n  width: 1024px;\\n}\\n\\n.lanes {\\n  height: 400px;\\n}\\n\\n.lanes .lane .assigned {\\n  position: absolute;\\n  bottom: 0;\\n  left: 0;\\n  right: 0;\\n}\\n\\n.lanes .lane {\\n  border: 2px solid green;\\n  border-left: 0;\\n  display: inline-block;\\n  height: 100%;\\n  position: relative;\\n  width: 20%;\\n}\\n\\n.lanes:first-child {\\n  border-left: 2px solid green;\\n}\\n\\n.cards {\\n  top: initial;\\n  width: 700px;\\n}\\n\\n.cards .card.active {\\n  background-color: #A0F;\\n}\\n\\n.cards .card {\\n  border: 1px solid black;\\n  border-radius: 4px;\\n  display: inline-block;\\n  height: 140px;\\n  position: relative;\\n  width: 100px;\\n}\\n\\n.number {\\n  bottom: 0;\\n  font-size: 100px;\\n  margin: auto;\\n  position: absolute;\\n  top: 0;\\n  text-align: center;\\n  width: 100%;\\n  height: 100px;\\n}\";",
       "type": "blob"
     },
     "pixie": {
@@ -76,6 +94,21 @@
     "setup": {
       "path": "setup",
       "content": "(function() {\n  var runtime;\n\n  global.PACKAGE = PACKAGE;\n\n  global.require = require;\n\n  require(\"jquery-utils\");\n\n  runtime = require(\"runtime\")(PACKAGE);\n\n  runtime.boot();\n\n  runtime.applyStyleSheet(require('./style'));\n\n  require(\"appcache\");\n\n}).call(this);\n\n//# sourceURL=setup.coffee",
+      "type": "blob"
+    },
+    "deck": {
+      "path": "deck",
+      "content": "(function() {\n  module.exports = function() {\n    var cards, index, self;\n    cards = [2, 3, 4, 5, 6, 7, 8, 9].concat([\"A\", \"K\", \"Q\", \"J\", \"T\"]).map(function(n) {\n      return [0, 1, 2, 3].map(function() {\n        return n.toString();\n      });\n    }).flatten().concat([\"0\", \"0\"]);\n    index = 0;\n    self = {\n      draw: function(n) {\n        var result;\n        result = cards.slice(index, index + n);\n        index += n;\n        return result;\n      },\n      shuffle: function() {\n        index = 0;\n        return cards = cards.shuffle();\n      },\n      cards: function() {\n        return cards;\n      }\n    };\n    self.shuffle();\n    return self;\n  };\n\n}).call(this);\n\n//# sourceURL=deck.coffee",
+      "type": "blob"
+    },
+    "card_presenter": {
+      "path": "card_presenter",
+      "content": "(function() {\n  module.exports = function(card, index, ui) {\n    return {\n      classes: function() {\n        if (index === ui.activeIndex()) {\n          return \"active\";\n        }\n      },\n      click: function() {\n        ui.activeIndex(index);\n        return console.log(card);\n      }\n    };\n  };\n\n}).call(this);\n\n//# sourceURL=card_presenter.coffee",
+      "type": "blob"
+    },
+    "lane_presenter": {
+      "path": "lane_presenter",
+      "content": "(function() {\n  module.exports = function(lane, index, ui) {\n    return {\n      click: function() {\n        return ui.chooseLane(index);\n      },\n      assigned: function() {\n        return ui.cards.get(ui.chosenIndices()[index]);\n      },\n      classes: function() {}\n    };\n  };\n\n}).call(this);\n\n//# sourceURL=lane_presenter.coffee",
       "type": "blob"
     }
   },

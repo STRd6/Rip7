@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>main</title>
+  <title>deck</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
@@ -18,7 +18,7 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1 id="rip7">Rip7</h1>
+              <h1 id="deck">Deck</h1>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">
@@ -34,31 +34,33 @@
               </div>
               
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">require <span class="string">"./setup"</span>
+            <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = -&gt;
+  cards = [<span class="number">2.</span><span class="number">.9</span>].concat([<span class="string">"A"</span>, <span class="string">"K"</span>, <span class="string">"Q"</span>, <span class="string">"J"</span>, <span class="string">"T"</span>]).map (n) -&gt; <span class="comment"># Standard 52</span>
+    [<span class="number">0.</span>.<span class="number">.4</span>].map -&gt;
+      n.toString()
+  .flatten()
+  .concat [<span class="string">"0"</span>, <span class="string">"0"</span>] <span class="comment"># Jokers</span>
 
-Deck = require <span class="string">"./deck"</span>
+  index = <span class="number">0</span>
 
-deck = Deck()
-hand = Observable deck.draw(<span class="number">7</span>)
+  self = 
+    draw: (n) -&gt;
+      result = cards.slice(index, index + n)
 
-ui =
-  cards: hand
-  lanes: Observable [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>]
-  activeIndex: Observable <span class="literal">null</span>
-  chosenIndices: Observable []
-  chooseLane: (laneIndex) -&gt;
-    <span class="keyword">if</span> (cardIndex = ui.activeIndex())?
+      index += n
 
-      existing = ui.chosenIndices().copy()
+      <span class="keyword">return</span> result
 
-      <span class="keyword">if</span> (index = existing.indexOf(cardIndex)) &gt;= <span class="number">0</span>
-        existing[index] = <span class="literal">null</span>
+    shuffle: -&gt;
+      index = <span class="number">0</span>
+      cards = cards.shuffle()
 
-      existing[laneIndex] = cardIndex
+    cards: -&gt;
+      cards
 
-      ui.chosenIndices existing
+  self.shuffle()
 
-$(<span class="string">"body"</span>).append require(<span class="string">"./template"</span>)(ui)</code></pre>
+  <span class="keyword">return</span> self</code></pre>
 </div>
         </li>
         

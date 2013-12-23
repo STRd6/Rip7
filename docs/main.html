@@ -36,9 +36,27 @@
             </div>
             <div class="content"><pre><code class="lang-coffeescript">require <span class="string">"./setup"</span>
 
+Deck = require <span class="string">"./deck"</span>
+
+deck = Deck()
+hand = Observable deck.draw(<span class="number">7</span>)
+
 ui =
-  cards: Observable [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>]
+  cards: hand
   lanes: Observable [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>]
+  activeIndex: Observable <span class="literal">null</span>
+  chosenIndices: Observable []
+  chooseLane: (laneIndex) -&gt;
+    <span class="keyword">if</span> (cardIndex = ui.activeIndex())?
+
+      existing = ui.chosenIndices().copy()
+
+      <span class="keyword">if</span> (index = existing.indexOf(cardIndex)) &gt;= <span class="number">0</span>
+        existing[index] = <span class="literal">null</span>
+
+      existing[laneIndex] = cardIndex
+
+      ui.chosenIndices existing
 
 $(<span class="string">"body"</span>).append require(<span class="string">"./template"</span>)(ui)</code></pre>
 </div>
