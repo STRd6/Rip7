@@ -40,18 +40,57 @@ Deck = require <span class="string">"./deck"</span>
 
 cpuDeck = Deck()
 deck = Deck()
-hand = Observable deck.draw(<span class="number">7</span>)
+lanes = Observable [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>]
+hand = Observable []
+aiHand = Observable []
+chosenIndices = Observable []
+handSize = <span class="number">7</span>
+
+cpuIndices = []
+
+cardRanks =
+  T: <span class="number">10</span>
+  J: <span class="number">10</span>
+  Q: <span class="number">10</span>
+  K: <span class="number">10</span>
+  A: <span class="number">1</span>
+
+<span class="function"><span class="title">face</span></span> = (card) -&gt;
+  card <span class="keyword">is</span> <span class="string">"J"</span> <span class="keyword">or</span> 
+  card <span class="keyword">is</span> <span class="string">"Q"</span> <span class="keyword">or</span>
+  card <span class="keyword">is</span> <span class="string">"K"</span>
+
+<span class="function"><span class="title">startTurn</span></span> = -&gt;
+  aiHand cpuDeck.draw(handSize)
+  hand deck.draw(handSize)
+  chosenIndices []
+  cpuIndices = [<span class="number">0.</span>..handSize].shuffle().slice(<span class="number">0</span>, <span class="number">5</span>)
+
+computeLaneExchange = () -&gt;
+  lanes lanes.map (value, index) -&gt;
+    playerCard = chosenIndices.get(index)
+    cpuCard = cpuIndices[index]
+    <span class="keyword">if</span> cpuCard <span class="keyword">is</span> <span class="string">"0"</span> <span class="keyword">or</span> playerCard <span class="keyword">is</span> <span class="string">"0"</span>
+      value <span class="comment"># Joker Rule</span>
+    <span class="keyword">else</span> <span class="keyword">if</span> playerCard <span class="keyword">is</span> <span class="string">"A"</span> <span class="keyword">and</span> face(cpuCard) <span class="comment"># Ace Rule</span>
+      value + <span class="number">1</span>
+    <span class="keyword">else</span> <span class="keyword">if</span> cpuCard <span class="keyword">is</span> <span class="string">"A"</span> <span class="keyword">and</span> face(playerCard)
+      value - <span class="number">1</span>
+    <span class="keyword">else</span>
+      value + (cardRanks[playerCard] <span class="keyword">or</span> parseInt(playerCard, <span class="number">10</span>)) - (cardRanks[cpuCard] <span class="keyword">or</span> parseInt(cpuCard))
 
 <span class="function"><span class="title">validateIndices</span></span> = (indices) -&gt;
   indices.select (n) -&gt;
     n?
   .length <span class="keyword">is</span> <span class="number">5</span>
 
+startTurn()
+
 ui =
   cards: hand
-  lanes: Observable [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>]
+  lanes: lanes
   activeIndex: Observable <span class="literal">null</span>
-  chosenIndices: Observable []
+  chosenIndices: chosenIndices
   chooseLane: (laneIndex) -&gt;
     <span class="keyword">if</span> (cardIndex = ui.activeIndex())?
 
@@ -68,6 +107,8 @@ ui =
     indices = ui.chosenIndices()
 
     <span class="keyword">if</span> validateIndices(indices)
+      computeLaneExchange()
+      startTurn()
       console.log indices
     <span class="keyword">else</span>
       console.log <span class="string">"invalid"</span>
