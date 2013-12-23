@@ -5,8 +5,14 @@ Rip7
     
     Deck = require "./deck"
 
+    cpuDeck = Deck()
     deck = Deck()
     hand = Observable deck.draw(7)
+
+    validateIndices = (indices) ->
+      indices.select (n) ->
+        n?
+      .length is 5
 
     ui =
       cards: hand
@@ -24,5 +30,13 @@ Rip7
           existing[laneIndex] = cardIndex
           
           ui.chosenIndices existing
+
+      resolveTurn: ->
+        indices = ui.chosenIndices()
+
+        if validateIndices(indices)
+          console.log indices
+        else
+          console.log "invalid"
 
     $("body").append require("./template")(ui)
